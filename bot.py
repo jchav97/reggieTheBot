@@ -1,45 +1,36 @@
 import os
 
 import discord
+import json
+import urllib.request as request
 
 from discord.ext import commands
 from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+MERRIAM_TOKEN = os.getenv('MERRIAM_DICTIONARY_API')
 
 bot = commands.Bot(command_prefix='!')
-client = discord.Client()
 
 
-
-#Client code
-#=============================================================================================
-@client.event
-async def on_ready():
-    print(f'{client.user} has connected to Discord!')
-
-#New members joining in the server
-@client.event
-async def on_member_join(member):
-    await client.get_channel(515696069850693646).send(f'Hi {member.name}, thanks for cu-coming!❤️❤️❤️')
-
-#General Messages
-#This will handle all message events
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    #Chat monitor
-    if ('fag' in message.content.lower()) or ('faggot' in message.content.lower()) or ('nigger' in message.content.lower()) or ('nigga' in message.content.lower()):
-        await message.channel.send('Watch it there buddy 👀')
-
-    if 'i am not a furry' in message.content.lower():
-        await message.channel.send('Are you sure?? 🤔')
-
-    if ('cat' in message.content.lower()) or ('hat' in message.content.lower()):
-        await message.channel.send('Oh, Yeah!🐈🎩')
+@bot.command(name='define', help='Defines a single word given as input. Ex: !define {input}')
+async def definitionOf(ctx, word):
+    jsonDef = await grab_json_definition(word, "collegiate", MERRIAM_TOKEN)
+    for i in jsonDef[0]:
+        if(i == 'shortdef'):
+            for j in jsonDef[0][i]:
+                await ctx.send(j)
+                #print(j,"\n")
+    #print(jsonDef)
 
 
-client.run(TOKEN)
+async def grab_json_definition(word, ref, key):
+    uri = "https://dictionaryapi.com/api/v3/references/" + ref + "/json/" + word + "?key=" + key
+    jsonURL = request.urlopen(uri)
+    source = jsonURL.read()
+    jsonData = json.loads(source)
+
+    return jsonData
+
+bot.run(TOKEN)
