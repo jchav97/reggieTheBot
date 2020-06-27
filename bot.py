@@ -35,8 +35,13 @@ async def synonymOf(ctx, word):
 
 @bot.command(name='roll', help='Rolls a dice, given the number of sides that you input. Ex: !roll {# of sides}')
 async def diceRoller(ctx,side):
-	value = str(randint(1,int(side)+1))
-	await ctx.send(value)
+	if (side == '1'):
+		await ctx.send(side)
+	elif (int(side)  <= 0):
+		await ctx.send('Sorry, no can do jimbo!')
+	else:
+		value = str(randint(1,int(side)+1))
+		await ctx.send(value)
 
 async def grab_json_definition(word, ref, key):
     uri = "https://dictionaryapi.com/api/v3/references/" + ref + "/json/" + word + "?key=" + key
