@@ -15,7 +15,7 @@ OPEN_WEATHER_TOKEN = os.getenv('OPEN_WEATHER_API')
 
 bot = commands.Bot(command_prefix='!')
 
-#!def command: used to find the first 4 definitions of a word
+
 @bot.command(name='def', help='Defines a single word given as input. Ex: !define {input}')
 async def definitionOf(ctx, word):
     jsonDef = await grab_json_definition(word, "collegiate", MERRIAM_TOKEN)
@@ -24,7 +24,6 @@ async def definitionOf(ctx, word):
             for j in jsonDef[0][i]:
                 await ctx.send(j)
 
-#!syn command: used to find the first 4 synonyms of a word
 @bot.command(name='syn', help='Gives synonyms for a single word. Ex: !syn {input}')
 async def synonymOf(ctx, word):
 	limiter = 0
@@ -35,7 +34,6 @@ async def synonymOf(ctx, word):
 		if (limiter == 4):
 			break
 
-#!roll command: given the number (inclusive), it will return a random number from 1 to {input}
 @bot.command(name='roll', help='Rolls a dice, given the number of sides that you input. Ex: !roll {# of sides}')
 async def diceRoller(ctx,side):
 	try:
@@ -49,31 +47,17 @@ async def diceRoller(ctx,side):
 	except ValueError:
 		await ctx.send('Sorry, you\'ve entered invalid inputs')
 
-#!weather command: Used to grab the weather (in progress)
-@bot.command(name='weather', help='Grabs CURRENT weather info with a zip code')
-async def weatherInfo(ctx, zip):
-	jsonWeather = await grab_json_weather(zip, OPEN_WEATHER_TOKEN)
-	await ctx.send('The current weather for ' + zip + ' looks like ' + jsonWeather['weather'][0]['description'] + '\nThe temperature is ' + str(jsonWeather['main']['temp']) + ' degrees but will feel like ' + str(jsonWeather['main']['feels_like']) + '\n The max today will be ' + str(jsonWeather['main']['temp_max']))
+@bot.command(name='weather', help='Grabs CURRENT weather info with zip code')
+async def currentWeather(ctx, zip):
+	jsonWeather = await grab_json_weather(zip,OPEN_WEATHER_TOKEN)
 
 
-#-------------------------------------------------------------------Helper functions--------------------------------------------------------------
-
-#Used to grab json data from open weather API
-async def grab_json_weather(zip, key):
-	uri = "https://api.openweathermap.org/data/2.5/weather?zip=" + zip + "&appid=" + key +"&units=imperial"
-	jsonURL = request.urlopen(uri)
-	source = jsonURL.read()
-	jsonData = json.loads(source)
-	return jsonData
-
-#used to grab json data from Mirriam webster API
 async def grab_json_definition(word, ref, key):
-	uri = "https://dictionaryapi.com/api/v3/references/" + ref + "/json/" + word + "?key=" + key
-	jsonURL = request.urlopen(uri)
-	source = jsonURL.read()
-	jsonData = json.loads(source)
-	return jsonData
+    uri = "https://dictionaryapi.com/api/v3/references/" + ref + "/json/" + word + "?key=" + key
+    jsonURL = request.urlopen(uri)
+    source = jsonURL.read()
+    jsonData = json.loads(source)
 
-
+    return jsonData
 
 bot.run(TOKEN)
